@@ -1,10 +1,8 @@
-import { describe, expect, it } from "vitest";
-import { mkdirSync, rmSync, writeFileSync } from "node:fs";
-import { mkdtempSync } from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { loadConfig, ConfigError, findConfigFile } from "../../src/config";
-import { DEFAULTS } from "../../src/config";
+import { describe, expect, it } from "vitest";
+import { ConfigError, DEFAULTS, findConfigFile, loadConfig } from "../../src/config";
 
 function tempDir(): { dir: string; cleanup: () => void } {
   const dir = mkdtempSync(join(tmpdir(), "gitcomm-config-"));

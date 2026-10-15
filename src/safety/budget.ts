@@ -31,10 +31,7 @@ const PRIORITY: Record<FileCategory, number> = {
 };
 
 /** Truncate diff text to `capChars`, ending on a line boundary with a marker. */
-export function truncateDiff(
-  text: string,
-  capChars: number,
-): { text: string; truncated: boolean } {
+export function truncateDiff(text: string, capChars: number): { text: string; truncated: boolean } {
   if (text.length <= capChars) {
     return { text, truncated: false };
   }
@@ -72,9 +69,7 @@ export function selectDiffs(
 
   const eligible = files
     .filter((f) => !f.ignoredForAI && !f.sensitive && diffTexts.has(f.path))
-    .sort(
-      (a, b) => PRIORITY[a.category] - PRIORITY[b.category],
-    );
+    .sort((a, b) => PRIORITY[a.category] - PRIORITY[b.category]);
 
   const out: DiffSlice[] = [];
   let used = 0;

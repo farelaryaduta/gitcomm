@@ -1,7 +1,7 @@
-import { execa } from "execa";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { execa } from "execa";
 
 export class TempRepo {
   readonly dir: string;
@@ -27,9 +27,7 @@ export class TempRepo {
       stripFinalNewline: false,
     });
     if (res.exitCode !== 0) {
-      throw new Error(
-        `git ${args.join(" ")} failed (exit ${res.exitCode}): ${res.stderr}`,
-      );
+      throw new Error(`git ${args.join(" ")} failed (exit ${res.exitCode}): ${res.stderr}`);
     }
   }
 

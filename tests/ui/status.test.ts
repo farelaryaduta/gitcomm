@@ -1,14 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { statusPanel, identityColors } from "../../src/ui";
-import type { StatusView } from "../../src/ui";
 import type { StagedFile } from "../../src/types";
+import type { StatusView } from "../../src/ui";
+import { identityColors, statusPanel } from "../../src/ui";
 
-function file(
-  path: string,
-  status: StagedFile["status"] = "A",
-  added = 1,
-  deleted = 0,
-) {
+function file(path: string, status: StagedFile["status"] = "A", added = 1, deleted = 0) {
   return {
     path,
     status,
@@ -23,10 +18,30 @@ const view: StatusView = {
   root: "D:/work/repo",
   branch: "main",
   files: [
-    { ...file("app/Models/Task.php"), category: "source" as const, ignoredForAI: false, sensitive: false },
-    { ...file("routes/web.php", "M", 2, 1), category: "route" as const, ignoredForAI: false, sensitive: false },
-    { ...file("composer.lock", "M", 30, 5), category: "deps" as const, ignoredForAI: true, sensitive: false },
-    { ...file(".env", "A", 1, 0), category: "config" as const, ignoredForAI: true, sensitive: true },
+    {
+      ...file("app/Models/Task.php"),
+      category: "source" as const,
+      ignoredForAI: false,
+      sensitive: false,
+    },
+    {
+      ...file("routes/web.php", "M", 2, 1),
+      category: "route" as const,
+      ignoredForAI: false,
+      sensitive: false,
+    },
+    {
+      ...file("composer.lock", "M", 30, 5),
+      category: "deps" as const,
+      ignoredForAI: true,
+      sensitive: false,
+    },
+    {
+      ...file(".env", "A", 1, 0),
+      category: "config" as const,
+      ignoredForAI: true,
+      sensitive: true,
+    },
   ],
   working: { staged: 2, unstaged: 1, untracked: 3 },
   typeHint: "feat",

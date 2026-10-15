@@ -1,6 +1,6 @@
-import type { ChangeSummary, GenerateRequest, StyleProfile } from "../types";
 import type { RepoContext } from "../history";
 import type { DiffSlice } from "../safety";
+import type { ChangeSummary, GenerateRequest, StyleProfile } from "../types";
 
 export interface BuildPromptInput {
   change: ChangeSummary;
@@ -15,15 +15,13 @@ export interface BuildPromptInput {
 const bullet = (s: string): string => `- ${s}`;
 
 const wantSubject = (length: number): string =>
-  `{type}({scope}): {subject${
-    length > 0 ? `, at most ${length} chars` : ""
-  }}`;
+  `{type}({scope}): {subject${length > 0 ? `, at most ${length} chars` : ""}}`;
 
 function diffSection(diffs: DiffSlice[]): string[] {
   if (diffs.length === 0) return ["[no diff text selected]"];
   const out: string[] = [];
   for (const d of diffs) {
-    out.push(`### ${d.path}` + (d.truncated ? " (truncated)" : ""));
+    out.push(`### ${d.path}${d.truncated ? " (truncated)" : ""}`);
     out.push(d.text);
   }
   return out;
@@ -92,13 +90,21 @@ function constraintSection(input: BuildPromptInput): string[] {
         ? `Use Conventional Commits: first line ${wantSubject(maxLen)}.`
         : `First line: plain subject, at most ${maxLen > 0 ? maxLen : 72} chars.`,
     ),
-    bullet(style.lowercaseStart ? "Start subjects with a lowercase letter." : "Casing follows repo history."),
-    bullet(style.endsWithPeriod ? "Repo history ends subjects with a period; stay consistent." : "Do not end subjects with a period."),
+    bullet(
+      style.lowercaseStart
+        ? "Start subjects with a lowercase letter."
+        : "Casing follows repo history.",
+    ),
+    bullet(
+      style.endsWithPeriod
+        ? "Repo history ends subjects with a period; stay consistent."
+        : "Do not end subjects with a period.",
+    ),
     bullet(style.usesEmoji ? "Match the repo's emoji usage in subjects." : "Do not use emojis."),
     bullet("A subject may be followed by indented body lines when the change needs explanation."),
     bullet("Never mention file paths or content absent from the diff."),
     bullet("Write subjects that describe the change's purpose, not the diff's mechanics."),
-    bullet("Avoid filler like \"add lines\" or \"update file\" when a more meaningful subject exists."),
+    bullet('Avoid filler like "add lines" or "update file" when a more meaningful subject exists.'),
     bullet("A subject must make sense to someone who never sees the diff."),
     bullet("NEVER repeat a recent commit subject verbatim."),
   ];

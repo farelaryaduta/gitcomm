@@ -1,11 +1,7 @@
 import { describe, expect, it } from "vitest";
-import {
-  fallbackCategory,
-  matchGeneric,
-  matchPreset,
-} from "../../src/classify/rules";
 import { laravelRules } from "../../src/classify/presets/laravel";
 import { nextjsRules } from "../../src/classify/presets/nextjs";
+import { fallbackCategory, matchGeneric, matchPreset } from "../../src/classify/rules";
 
 describe("generic rules", () => {
   it("classifies docs", () => {
@@ -58,11 +54,17 @@ describe("generic rules", () => {
 
 describe("laravel preset", () => {
   it("classifies controllers, models, migrations, routes, views, services", () => {
-    expect(matchPreset("app/Http/Controllers/TaskController.php", laravelRules)?.category).toBe("controller");
+    expect(matchPreset("app/Http/Controllers/TaskController.php", laravelRules)?.category).toBe(
+      "controller",
+    );
     expect(matchPreset("app/Models/Task.php", laravelRules)?.category).toBe("model");
-    expect(matchPreset("database/migrations/2026_create_tasks_table.php", laravelRules)?.category).toBe("migration");
+    expect(
+      matchPreset("database/migrations/2026_create_tasks_table.php", laravelRules)?.category,
+    ).toBe("migration");
     expect(matchPreset("routes/web.php", laravelRules)?.category).toBe("route");
-    expect(matchPreset("resources/views/tasks/index.blade.php", laravelRules)?.category).toBe("view");
+    expect(matchPreset("resources/views/tasks/index.blade.php", laravelRules)?.category).toBe(
+      "view",
+    );
     expect(matchPreset("app/Services/OrderService.php", laravelRules)?.category).toBe("service");
     expect(matchPreset("database/seeders/TaskSeeder.php", laravelRules)?.category).toBe("model");
     expect(matchPreset("tests/Feature/TaskTest.php", laravelRules)?.category).toBe("test");

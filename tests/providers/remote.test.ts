@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 import {
-  RemoteProvider,
   DEFAULT_API_URL,
   DEFAULT_MAX_RETRIES,
   DEFAULT_TIMEOUT_MS,
+  ProviderError,
+  RemoteProvider,
 } from "../../src/providers";
-import { ProviderError } from "../../src/providers";
 import type { GenerateRequest } from "../../src/types";
 
 const API_URL = "https://ci.example.com";
@@ -77,10 +77,7 @@ describe("RemoteProvider", () => {
       .fn()
       .mockResolvedValueOnce(jsonReply({}, 429))
       .mockResolvedValueOnce(jsonReply({ text: "fix: ok" }));
-    const p = new RemoteProvider(
-      { apiUrl: API_URL, maxRetries: 2, timeoutMs: 5000 },
-      fetcher,
-    );
+    const p = new RemoteProvider({ apiUrl: API_URL, maxRetries: 2, timeoutMs: 5000 }, fetcher);
     const out = await p.generate(REQ);
     expect(out).toBe("fix: ok");
     expect(fetcher).toHaveBeenCalledTimes(2);
@@ -88,10 +85,7 @@ describe("RemoteProvider", () => {
 
   it("gives up after exhausting retries on persistent 5xx", async () => {
     const fetcher = vi.fn(async () => jsonReply({}, 503));
-    const p = new RemoteProvider(
-      { apiUrl: API_URL, maxRetries: 1, timeoutMs: 5000 },
-      fetcher,
-    );
+    const p = new RemoteProvider({ apiUrl: API_URL, maxRetries: 1, timeoutMs: 5000 }, fetcher);
     await expect(p.generate(REQ)).rejects.toMatchObject({ code: "http" });
     expect(fetcher).toHaveBeenCalledTimes(2);
   });
@@ -143,10 +137,7 @@ describe("RemoteProvider", () => {
         }),
       )
       .mockResolvedValueOnce(jsonReply({ text: "fix: ok" }));
-    const p = new RemoteProvider(
-      { apiUrl: API_URL, maxRetries: 1, timeoutMs: 5000 },
-      fetcher,
-    );
+    const p = new RemoteProvider({ apiUrl: API_URL, maxRetries: 1, timeoutMs: 5000 }, fetcher);
     const out = await p.generate(REQ);
     expect(out).toBe("fix: ok");
     expect(fetcher).toHaveBeenCalledTimes(2);

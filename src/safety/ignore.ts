@@ -59,7 +59,7 @@ export function globMatches(pattern: string, path: string): boolean {
 
   const re = globToRegExp(p);
   if (re.test(normalized)) return true;
-  if (dirPrefix && normalized.startsWith(p + "/")) return true;
+  if (dirPrefix && normalized.startsWith(`${p}/`)) return true;
   if (!p.includes("/")) {
     const base = normalized.split("/").pop() ?? "";
     if (re.test(base)) return true;
@@ -68,11 +68,7 @@ export function globMatches(pattern: string, path: string): boolean {
 }
 
 /** Whether a file's diff content must be kept away from the provider. */
-export function isIgnoredForAI(
-  path: string,
-  binary: boolean,
-  extraGlobs: string[] = [],
-): boolean {
+export function isIgnoredForAI(path: string, binary: boolean, extraGlobs: string[] = []): boolean {
   if (binary) return true;
   if (DEFAULT_IGNORE_PATTERNS.some((re) => re.test(path))) return true;
   return extraGlobs.some((g) => globMatches(g, path));

@@ -1,11 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { classifyFiles } from "../../src/classify";
 import { fallbackSuggestions } from "../../src/providers";
-import type { StyleProfile, StagedFile } from "../../src/types";
-import {
-  laravelFeature,
-  laravelMigrationOnly,
-} from "../fixtures/classify";
+import type { StagedFile, StyleProfile } from "../../src/types";
+import { laravelFeature, laravelMigrationOnly } from "../fixtures/classify";
 
 const CONVENTIONAL: StyleProfile = {
   sampleSize: 4,
@@ -91,10 +88,7 @@ describe("fallbackSuggestions", () => {
 
   it("formats for non-conventional lowercase-start style", async () => {
     const summary = await classify([file("README.md")]);
-    const out = fallbackSuggestions(
-      summary,
-      { ...PLAIN, lowercaseStart: true },
-    );
+    const out = fallbackSuggestions(summary, { ...PLAIN, lowercaseStart: true });
     expect(out[0]?.subject).toBe("update readme");
   });
 

@@ -16,10 +16,7 @@ export interface SelectOption<T extends string> {
 
 /** Injectable interactive interface, satisfied by clack in production. */
 export interface Prompts {
-  select<T extends string>(opts: {
-    message: string;
-    options: SelectOption<T>[];
-  }): Promise<T>;
+  select<T extends string>(opts: { message: string; options: SelectOption<T>[] }): Promise<T>;
   text(opts: {
     message: string;
     initialValue?: string;

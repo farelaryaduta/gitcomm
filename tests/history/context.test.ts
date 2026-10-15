@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { gatherContext, CONTEXT_COMMIT_DEPTH } from "../../src/history/context";
+import { CONTEXT_COMMIT_DEPTH, gatherContext } from "../../src/history/context";
 import { TempRepo } from "../helpers/temp-repo";
 
 describe("gatherContext", () => {

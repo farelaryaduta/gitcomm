@@ -1,10 +1,17 @@
-import { describe, expect, it } from "vitest";
-import { TempRepo } from "../helpers/temp-repo";
-import { runCli, EXIT_OK, EXIT_ERROR, EXIT_USAGE, EXIT_SENSITIVE, EXIT_CANCEL } from "../../src/cli/run";
-import { ScriptedPrompts } from "../../src/ui";
-import { FakeProvider } from "../../src/providers";
-import type { RunOptions, RunDeps } from "../../src/cli/run";
 import { execa } from "execa";
+import { describe, expect, it } from "vitest";
+import type { RunDeps, RunOptions } from "../../src/cli/run";
+import {
+  EXIT_CANCEL,
+  EXIT_ERROR,
+  EXIT_OK,
+  EXIT_SENSITIVE,
+  EXIT_USAGE,
+  runCli,
+} from "../../src/cli/run";
+import { FakeProvider } from "../../src/providers";
+import { ScriptedPrompts } from "../../src/ui";
+import { TempRepo } from "../helpers/temp-repo";
 
 function baseOptions(partial: Partial<RunOptions> = {}): RunOptions {
   return {
@@ -205,11 +212,7 @@ describe("runCli", () => {
       await repo.commit("chore: init");
       repo.writeFile("a.txt", "x\ny\n");
       await repo.addAll();
-      const prompts = new ScriptedPrompts().with(
-        "custom",
-        "fix(ui): my own message",
-        true,
-      );
+      const prompts = new ScriptedPrompts().with("custom", "fix(ui): my own message", true);
       const code = await runCli(
         baseOptions({ commit: false, yes: false }),
         await depsFor(repo, prompts),
@@ -253,10 +256,7 @@ describe("runCli", () => {
       const deps = await depsFor(repo);
       deps.out = (m) => out.push(m);
       deps.providerOverride = undefined;
-      const code = await runCli(
-        baseOptions({ dryRun: true, commit: false, offline: true }),
-        deps,
-      );
+      const code = await runCli(baseOptions({ dryRun: true, commit: false, offline: true }), deps);
       expect(code).toBe(EXIT_OK);
       expect(out.join("\n")).toContain("docs: update documentation");
       expect(await logSubjects(repo)).toHaveLength(1);
@@ -282,10 +282,7 @@ describe("runCli", () => {
           throw new Error("boom");
         },
       };
-      const code = await runCli(
-        baseOptions({ dryRun: true, commit: false }),
-        deps,
-      );
+      const code = await runCli(baseOptions({ dryRun: true, commit: false }), deps);
       expect(code).toBe(EXIT_OK);
       expect(out.join("\n")).toContain("docs: update documentation");
       expect(await logSubjects(repo)).toHaveLength(1);
@@ -364,10 +361,7 @@ describe("runCli", () => {
           },
         },
       });
-      const code = await runCli(
-        baseOptions({ dryRun: true, commit: false }),
-        deps,
-      );
+      const code = await runCli(baseOptions({ dryRun: true, commit: false }), deps);
       expect(code).toBe(EXIT_OK);
       expect(calls).toBe(2);
       expect(out.join("\n")).toContain("feat(api): add login controller");

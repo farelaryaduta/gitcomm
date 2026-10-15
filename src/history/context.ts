@@ -1,5 +1,5 @@
-import type { CommitInfo } from "../types";
 import { getCurrentBranch, getRecentCommitsForPaths } from "../git";
+import type { CommitInfo } from "../types";
 
 /** cap on per-file commit context. */
 export const CONTEXT_COMMIT_DEPTH = 5;
@@ -12,10 +12,7 @@ export interface RepoContext {
 }
 
 /** Gather repo context (recent per-path commits and branch) for the prompt. */
-export async function gatherContext(
-  cwd: string,
-  paths: string[],
-): Promise<RepoContext> {
+export async function gatherContext(cwd: string, paths: string[]): Promise<RepoContext> {
   const [commits, branch] = await Promise.all([
     getRecentCommitsForPaths(cwd, paths, CONTEXT_COMMIT_DEPTH),
     getCurrentBranch(cwd),

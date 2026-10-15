@@ -41,9 +41,7 @@ export const docsOnly: StagedFile[] = [
 ];
 
 /** Tests only. */
-export const testsOnly: StagedFile[] = [
-  file("tests/Feature/TaskTest.php", "A", 25, 0),
-];
+export const testsOnly: StagedFile[] = [file("tests/Feature/TaskTest.php", "A", 25, 0)];
 
 /** Mixed fix + refactor (existing source modified, no additions). */
 export const mixedFixRefactor: StagedFile[] = [
@@ -51,6 +49,4 @@ export const mixedFixRefactor: StagedFile[] = [
   file("src/worker.ts", "M", 3, 3),
 ];
 
-export const binaryFile: StagedFile[] = [
-  file("assets/logo.png", "A", 0, 0),
-];
+export const binaryFile: StagedFile[] = [file("assets/logo.png", "A", 0, 0)];

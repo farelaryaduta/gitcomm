@@ -9,8 +9,10 @@ const COMMIT_FORMAT = "%H%x00%s%x00%b%x00";
  */
 export function parseLogOutput(text: string): CommitInfo[] {
   const out: CommitInfo[] = [];
+  // biome-ignore lint/suspicious/noControlCharactersInRegex: git uses \x00 as the field separator in --format output
   const re = /^([0-9a-f]{40})\x00([^\x00]*)\x00([\s\S]*?)\x00\n?$/gm;
   let m: RegExpExecArray | null;
+  // biome-ignore lint/suspicious/noAssignInExpressions: idiomatic global RegExp iteration
   while ((m = re.exec(text)) !== null) {
     out.push({ hash: m[1]!, subject: m[2]!.trim(), body: m[3]!.trim() });
   }
@@ -21,16 +23,8 @@ export function parseLogOutput(text: string): CommitInfo[] {
  * Return the `n` most recent commits (`{ hash, subject, body }`), newest
  * first. Never throws on an empty repository (returns `[]`).
  */
-export async function getRecentCommits(
-  cwd: string,
-  n: number,
-): Promise<CommitInfo[]> {
-  const res = await run(cwd, [
-    "log",
-    "-n",
-    String(n),
-    "--format=" + COMMIT_FORMAT,
-  ]);
+export async function getRecentCommits(cwd: string, n: number): Promise<CommitInfo[]> {
+  const res = await run(cwd, ["log", "-n", String(n), `--format=${COMMIT_FORMAT}`]);
   if (!res.ok) {
     if (res.exitCode === 128 && /does not have any commits/i.test(res.stderr)) {
       return [];
@@ -46,14 +40,7 @@ export async function getRecentCommitsForPaths(
   paths: string[],
   n: number,
 ): Promise<CommitInfo[]> {
-  const res = await run(cwd, [
-    "log",
-    "-n",
-    String(n),
-    "--format=" + COMMIT_FORMAT,
-    "--",
-    ...paths,
-  ]);
+  const res = await run(cwd, ["log", "-n", String(n), `--format=${COMMIT_FORMAT}`, "--", ...paths]);
   if (!res.ok) {
     if (res.exitCode === 128 && /does not have any commits/i.test(res.stderr)) {
       return [];

@@ -1,13 +1,11 @@
 import { describe, expect, it } from "vitest";
-import {
-  inferScopeFromPath,
-  pickScope,
-  reconcileWithKnownScopes,
-} from "../../src/classify/scope";
+import { inferScopeFromPath, pickScope, reconcileWithKnownScopes } from "../../src/classify/scope";
 
 describe("inferScopeFromPath", () => {
   it("strips class suffixes from Laravel classes", () => {
-    expect(inferScopeFromPath("app/Http/Controllers/TaskController.php", "controller")).toBe("task");
+    expect(inferScopeFromPath("app/Http/Controllers/TaskController.php", "controller")).toBe(
+      "task",
+    );
     expect(inferScopeFromPath("app/Services/OrderService.php", "service")).toBe("order");
   });
 
@@ -22,15 +20,9 @@ describe("inferScopeFromPath", () => {
   });
 
   it("ignores route groups and dynamic segments in Next.js pages", () => {
-    expect(
-      inferScopeFromPath("app/(store)/checkout/page.tsx", "page"),
-    ).toBe("checkout");
-    expect(
-      inferScopeFromPath("app/blog/[slug]/page.tsx", "page"),
-    ).toBe("blog");
-    expect(
-      inferScopeFromPath("app/page.tsx", "page"),
-    ).toBeUndefined();
+    expect(inferScopeFromPath("app/(store)/checkout/page.tsx", "page")).toBe("checkout");
+    expect(inferScopeFromPath("app/blog/[slug]/page.tsx", "page")).toBe("blog");
+    expect(inferScopeFromPath("app/page.tsx", "page")).toBeUndefined();
   });
 
   it("uses the first meaningful directory below a source root", () => {
@@ -49,9 +41,7 @@ describe("inferScopeFromPath", () => {
 
 describe("pickScope", () => {
   it("picks the most frequent candidate", () => {
-    expect(
-      pickScope(["task", "tasks", "task", undefined]),
-    ).toBe("task");
+    expect(pickScope(["task", "tasks", "task", undefined])).toBe("task");
   });
 
   it("resolves a prefix tie to the broader scope", () => {
@@ -70,9 +60,7 @@ describe("pickScope", () => {
 
 describe("reconcileWithKnownScopes", () => {
   it("prefers the known spelling when it matches or contains the candidate", () => {
-    expect(
-      reconcileWithKnownScopes("task", ["auth", "tasks", "billing"]),
-    ).toBe("tasks");
+    expect(reconcileWithKnownScopes("task", ["auth", "tasks", "billing"])).toBe("tasks");
     expect(reconcileWithKnownScopes("checkout", ["Checkout"])).toBe("Checkout");
   });
 

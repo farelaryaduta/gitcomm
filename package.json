@@ -19,6 +19,10 @@
     "prepublishOnly": "npm run build",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
+    "check": "biome ci .",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "fix": "biome check --write .",
     "eval": "tsx scripts/eval.ts",
     "serve": "node server/server.mjs",
     "dev:worker": "wrangler dev -c server/wrangler.jsonc --port 8787",
@@ -41,6 +45,7 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.5.15",
     "@types/node": "^26.6.2",
     "tsup": "^8.5.1",
     "tsx": "^4.23.15",

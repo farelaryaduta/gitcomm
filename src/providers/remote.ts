@@ -1,5 +1,5 @@
 import type { GenerateRequest } from "../types";
-import { ProviderError, sleep, type LLMProvider } from "./llm";
+import { type LLMProvider, ProviderError, sleep } from "./llm";
 
 export const DEFAULT_TIMEOUT_MS = 30_000;
 export const DEFAULT_MAX_RETRIES = 2;
@@ -29,7 +29,7 @@ function isTimeoutError(err: unknown): boolean {
 /** Network failures worth retrying (transient) — DNS/refused errors are not. */
 function isTransientNetworkError(err: unknown): boolean {
   if (err instanceof Error && (err as { cause?: unknown }).cause) {
-    const code = ((err as { cause?: { code?: string } }).cause!)?.code;
+    const code = (err as { cause?: { code?: string } }).cause?.code;
     return [
       "ECONNRESET",
       "ETIMEDOUT",
@@ -43,10 +43,7 @@ function isTransientNetworkError(err: unknown): boolean {
   return false;
 }
 
-export type FetchLike = (
-  url: string,
-  init: RequestInit,
-) => Promise<Response>;
+export type FetchLike = (url: string, init: RequestInit) => Promise<Response>;
 
 /** Transport that asks a hosted gitcomm service for suggestions. */
 export class RemoteProvider implements LLMProvider {
@@ -78,8 +75,7 @@ export class RemoteProvider implements LLMProvider {
     for (;;) {
       const signals: AbortSignal[] = [AbortSignal.timeout(timeoutMs)];
       if (req.signal) signals.push(req.signal);
-      const signal =
-        signals.length > 1 ? AbortSignal.any(signals) : signals[0]!;
+      const signal = signals.length > 1 ? AbortSignal.any(signals) : signals[0]!;
 
       let res: Response;
       try {
@@ -92,10 +88,10 @@ export class RemoteProvider implements LLMProvider {
       } catch (err) {
         if (req.signal?.aborted) throw err;
         if (!isTimeoutError(err) && !isTransientNetworkError(err)) {
-          throw new ProviderError(
-            `gitcomm service request failed: ${(err as Error).message}`,
-            { code: "network", retriable: false },
-          );
+          throw new ProviderError(`gitcomm service request failed: ${(err as Error).message}`, {
+            code: "network",
+            retriable: false,
+          });
         }
         if (attempt < maxRetries) {
           await sleep(RETRY_BACKOFF_MS[attempt] ?? 1500);
@@ -136,10 +132,11 @@ export class RemoteProvider implements LLMProvider {
           attempt += 1;
           continue;
         }
-        throw new ProviderError(
-          `gitcomm service error ${res.status}: ${detail.slice(0, 300)}`,
-          { code: is429 ? "rate_limit" : "http", retriable: !is429, status: res.status },
-        );
+        throw new ProviderError(`gitcomm service error ${res.status}: ${detail.slice(0, 300)}`, {
+          code: is429 ? "rate_limit" : "http",
+          retriable: !is429,
+          status: res.status,
+        });
       }
 
       let data: unknown;
@@ -150,7 +147,7 @@ export class RemoteProvider implements LLMProvider {
           code: "parse",
         });
       }
-      const content = (data as any)?.text as string | undefined;
+      const content = (data as { text?: unknown } | null)?.text;
       if (typeof content !== "string" || content.trim() === "") {
         throw new ProviderError("gitcomm service returned an empty completion", {
           code: "empty",

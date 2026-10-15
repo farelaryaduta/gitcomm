@@ -1,15 +1,24 @@
 #!/usr/bin/env node
-import { realpathSync, readFileSync } from "node:fs";
+import { readFileSync, realpathSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { Command } from "commander";
 import { intro, note } from "@clack/prompts";
+import { Command } from "commander";
 import pc from "picocolors";
-import { runCli, EXIT_OK, EXIT_USAGE, EXIT_ERROR, type RunOptions } from "./cli/run";
-import { clackPrompts, statusPanel, type StatusView, type Colors } from "./ui";
+import { EXIT_ERROR, EXIT_USAGE, type RunOptions, runCli } from "./cli/run";
+import { type Colors, clackPrompts, type StatusView, statusPanel } from "./ui";
 
 const TYPES = [
-  "feat", "fix", "refactor", "docs", "test", "chore", "ci", "style", "perf", "build",
+  "feat",
+  "fix",
+  "refactor",
+  "docs",
+  "test",
+  "chore",
+  "ci",
+  "style",
+  "perf",
+  "build",
 ] as const;
 const LANGUAGES = ["auto", "en", "id"] as const;
 const COMMIT_TYPES = new Set<string>(TYPES);
@@ -45,10 +54,7 @@ export function createProgram(): Command {
     .name("gitcomm")
     .description("Suggest and run git commit messages based on your staged changes")
     .version(readVersion(), "-v, --version")
-    .option(
-      "--stageddonly",
-      "only use pre-staged files; never auto-stage working-tree changes",
-    )
+    .option("--stageddonly", "only use pre-staged files; never auto-stage working-tree changes")
     .option("-a, --all", "stage all tracked working-tree changes first (git add -u)")
     .option("-c, --commit", "skip the final confirmation and run git commit")
     .option("-n, --dry-run", "print the chosen message without committing")
@@ -103,20 +109,14 @@ export function main(argv: string[]): void {
   const count = Number(opts.count);
   if (Number.isInteger(count) && count >= 1 && count <= 5) runOptions.count = count;
 
-  if (
-    runOptions.type !== undefined &&
-    !COMMIT_TYPES.has(runOptions.type)
-  ) {
+  if (runOptions.type !== undefined && !COMMIT_TYPES.has(runOptions.type)) {
     process.stderr.write(
       `error: invalid commit type "${runOptions.type}" (expected one of: ${TYPES.join(", ")})\n`,
     );
     process.exitCode = EXIT_USAGE;
     return;
   }
-  if (
-    runOptions.language !== undefined &&
-    !LANGUAGES.includes(runOptions.language)
-  ) {
+  if (runOptions.language !== undefined && !LANGUAGES.includes(runOptions.language)) {
     process.stderr.write(
       `error: invalid language "${runOptions.language}" (expected one of: ${LANGUAGES.join(", ")})\n`,
     );
@@ -145,8 +145,7 @@ export function main(argv: string[]): void {
 // entry check still matches after Node realpaths the module URL.
 const entry = process.argv[1];
 const isDirectRun =
-  entry !== undefined &&
-  import.meta.url === pathToFileURL(realpathSync(entry)).href;
+  entry !== undefined && import.meta.url === pathToFileURL(realpathSync(entry)).href;
 
 if (isDirectRun) {
   main(process.argv);

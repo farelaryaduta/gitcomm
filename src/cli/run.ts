@@ -1,39 +1,28 @@
-import type { ChangeSummary, CommitType, Suggestion } from "../types";
+import pc from "picocolors";
 import { classifyFiles } from "../classify";
-import { analyzeStyle, gatherContext } from "../history";
+import { loadConfig, type ResolvedConfig } from "../config";
 import {
-  DEFAULT_PER_FILE_CAP,
-  isIgnoredForAI,
-  isSensitive,
-  redact,
-  selectDiffs,
-} from "../safety";
-import {
-  isGitRepo,
+  commit,
+  getCurrentBranch,
+  getRecentCommits,
   getRepoRoot,
+  getStagedDiffByFile,
   getStagedFiles,
   getWorkingTreeChanges,
-  stageTracked,
+  isGitRepo,
   stageAllChanges,
   stagePaths,
-  getStagedDiffByFile,
-  getRecentCommits,
-  getCurrentBranch,
-  commit,
+  stageTracked,
   type WorkingTreeFile,
 } from "../git";
 import { run } from "../git/run";
+import { analyzeStyle, gatherContext } from "../history";
 import { buildPrompt, isSlop, parseSuggestions } from "../prompt";
-import {
-  DEFAULT_API_URL,
-  ProviderError,
-  RemoteProvider,
-  fallbackSuggestions,
-} from "../providers";
 import type { LLMProvider } from "../providers";
-import { loadConfig, type ResolvedConfig } from "../config";
-import { CancelError, statusPanel, type Prompts, type StatusView } from "../ui";
-import pc from "picocolors";
+import { DEFAULT_API_URL, fallbackSuggestions, ProviderError, RemoteProvider } from "../providers";
+import { DEFAULT_PER_FILE_CAP, isIgnoredForAI, isSensitive, redact, selectDiffs } from "../safety";
+import type { CommitType, Suggestion } from "../types";
+import { CancelError, type Prompts, type StatusView, statusPanel } from "../ui";
 
 export const EXIT_OK = 0;
 export const EXIT_ERROR = 1;
@@ -74,8 +63,7 @@ export interface RunDeps {
   render?(view: StatusView): void;
 }
 
-const truncate = (s: string, n: number): string =>
-  s.length > n ? `${s.slice(0, n - 1)}…` : s;
+const truncate = (s: string, n: number): string => (s.length > n ? `${s.slice(0, n - 1)}…` : s);
 
 /**
  * Run the full gitcomm flow. Returns a process exit code.
@@ -181,15 +169,16 @@ async function execute(opts: RunOptions, deps: RunDeps): Promise<number> {
   const workingList = await getWorkingTreeChanges(root);
   const working = {
     staged: workingList.filter((f) => f.staged).length,
-    unstaged: workingList.filter(
-      (f) => !f.untracked && f.status.length > 1 && f.status[1] !== " ",
-    ).length,
+    unstaged: workingList.filter((f) => !f.untracked && f.status.length > 1 && f.status[1] !== " ")
+      .length,
     untracked: workingList.filter((f) => f.untracked).length,
   };
   const branch = await getCurrentBranch(root);
-  const render = deps.render ?? ((view: StatusView) => {
-    for (const line of statusPanel(view)) out(line);
-  });
+  const render =
+    deps.render ??
+    ((view: StatusView) => {
+      for (const line of statusPanel(view)) out(line);
+    });
   if (!opts.print) {
     render({
       root,
@@ -283,7 +272,7 @@ async function execute(opts: RunOptions, deps: RunDeps): Promise<number> {
   if (opts.verbose) {
     const latency = Date.now() - started;
     err(
-      `verbose: provider=${opts.offline ? "offline" : provider?.name ?? "-"} latency=${latency}ms`,
+      `verbose: provider=${opts.offline ? "offline" : (provider?.name ?? "-")} latency=${latency}ms`,
     );
   }
 
@@ -298,7 +287,7 @@ async function execute(opts: RunOptions, deps: RunDeps): Promise<number> {
   const vague = suggestions.filter((s) => isSlop(s.subject)).length;
   if (!opts.offline && suggestions.length > 0 && vague >= Math.ceil(suggestions.length / 2)) {
     const nudge =
-      "\n\nSome previous subjects were too vague and did not name anything that changed (e.g. \"fix bugs\"). " +
+      '\n\nSome previous subjects were too vague and did not name anything that changed (e.g. "fix bugs"). ' +
       `Name the concrete unit in EVERY subject — the thing that was built, fixed, or moved — ` +
       `e.g. "feat(cart): add coupon model". Keep subjects under ${config.maxSubjectLength} chars, ` +
       "lowercase after the colon, no trailing period.";
@@ -400,10 +389,7 @@ async function execute(opts: RunOptions, deps: RunDeps): Promise<number> {
   return EXIT_OK;
 }
 
-function resolveProviderFor(
-  config: ResolvedConfig,
-  deps: RunDeps,
-): LLMProvider {
+function resolveProviderFor(config: ResolvedConfig, deps: RunDeps): LLMProvider {
   if (deps.providerOverride) return deps.providerOverride;
   return new RemoteProvider({
     apiUrl: config.apiUrl ?? DEFAULT_API_URL,

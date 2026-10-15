@@ -23,7 +23,7 @@ describe("analyzeStyle", () => {
     expect(s.language).toBe("en");
     expect(s.knownScopes).toContain("api");
     expect(s.knownScopes).toContain("orders");
-    expect(s.typeCounts["feat"]).toBe(2);
+    expect(s.typeCounts.feat).toBe(2);
     expect(s.examples.length).toBeLessThanOrEqual(8);
     expect(s.sampleSize).toBe(8);
     expect(s.lowercaseStart).toBe(true);
@@ -119,9 +119,7 @@ describe("analyzeStyle", () => {
   });
 
   it("keeps examples within 8 and without duplicates", () => {
-    const commits = Array.from({ length: 20 }, (_, i) =>
-      commit(`feat: change number ${i}`),
-    );
+    const commits = Array.from({ length: 20 }, (_, i) => commit(`feat: change number ${i}`));
     const s = analyzeStyle(commits);
     expect(s.examples.length).toBeLessThanOrEqual(8);
     expect(new Set(s.examples).size).toBe(s.examples.length);

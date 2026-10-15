@@ -16,29 +16,70 @@ function stem(subject: string): string {
 
 function hasEmoji(s: string): boolean {
   return (
+    // biome-ignore lint/suspicious/noMisleadingCharacterClass: matches any emoji code point; a class is intentional here, not a combined glyph
     /[\p{Extended_Pictographic}\u{1F300}-\u{1F5FF}\u{2600}-\u{27BF}\u{FE0F}\u{2764}]/u.test(s) ||
     /:[a-z0-9_+-]+:/i.test(s)
   );
 }
 
 const ID_STOPWORDS = new Set([
-  "yang", "dan", "untuk", "dengan", "menambahkan", "menambah", "perbaikan",
-  "memperbaiki", "tambah", "menghapus", "hapus", "mengubah", "ubah", "merubah",
-  "fitur", "di", "ke", "dari", "pada", "agar", "membuat", "memperbarui",
-  "memperbaharui", "melakukan",
+  "yang",
+  "dan",
+  "untuk",
+  "dengan",
+  "menambahkan",
+  "menambah",
+  "perbaikan",
+  "memperbaiki",
+  "tambah",
+  "menghapus",
+  "hapus",
+  "mengubah",
+  "ubah",
+  "merubah",
+  "fitur",
+  "di",
+  "ke",
+  "dari",
+  "pada",
+  "agar",
+  "membuat",
+  "memperbarui",
+  "memperbaharui",
+  "melakukan",
 ]);
 
 const EN_STOPWORDS = new Set([
-  "add", "fix", "update", "remove", "with", "for", "feat", "in", "of", "to",
-  "make", "change", "changes", "and", "the", "improve", "improves",
-  "implement", "support", "refactor",
+  "add",
+  "fix",
+  "update",
+  "remove",
+  "with",
+  "for",
+  "feat",
+  "in",
+  "of",
+  "to",
+  "make",
+  "change",
+  "changes",
+  "and",
+  "the",
+  "improve",
+  "improves",
+  "implement",
+  "support",
+  "refactor",
 ]);
 
 function detectLanguage(subjects: string[]): StyleProfile["language"] {
   let id = 0;
   let en = 0;
   for (const s of subjects) {
-    const words = s.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+    const words = s
+      .toLowerCase()
+      .split(/[^a-z0-9]+/)
+      .filter(Boolean);
     for (const w of words) {
       if (ID_STOPWORDS.has(w)) id += 1;
       else if (EN_STOPWORDS.has(w)) en += 1;
@@ -114,9 +155,7 @@ function percentile(sorted: number[], p: number): number {
  * there are fewer than 5 usable commits.
  */
 export function analyzeStyle(commits: CommitInfo[]): StyleProfile {
-  const usable = commits.filter(
-    (c) => !/^Merge /.test(c.subject) && !/^Revert /.test(c.subject),
-  );
+  const usable = commits.filter((c) => !/^Merge /.test(c.subject) && !/^Revert /.test(c.subject));
   const sampleSize = usable.length;
   if (sampleSize < MIN_SAMPLE) return fallbackProfile(sampleSize);
 

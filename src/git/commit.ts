@@ -2,14 +2,8 @@ import { execa } from "execa";
 import { requireOk, run } from "./run";
 
 /** Run `git commit -F -` with the message on stdin. Never uses `--no-verify`. */
-export async function commit(
-  cwd: string,
-  message: string,
-  noVerify = false,
-): Promise<string> {
-  const args = noVerify
-    ? ["commit", "-F", "-", "--no-verify"]
-    : ["commit", "-F", "-"];
+export async function commit(cwd: string, message: string, noVerify = false): Promise<string> {
+  const args = noVerify ? ["commit", "-F", "-", "--no-verify"] : ["commit", "-F", "-"];
   const res = await execa("git", args, {
     cwd,
     input: message,
@@ -77,7 +71,7 @@ export function parsePorcelain(buf: Buffer): WorkingTreeFile[] {
       untracked: x === "?" && y === "?",
       status: `${x}${y}`,
     };
-    if ((x === "R" || x === "C")) {
+    if (x === "R" || x === "C") {
       file.oldPath = parts[i]!;
       i += 1;
     }
@@ -90,9 +84,7 @@ export function parsePorcelain(buf: Buffer): WorkingTreeFile[] {
  * Return modified, deleted, and untracked files via
  * `git status --porcelain=v1 -z`. Includes files staged in the index.
  */
-export async function getWorkingTreeChanges(
-  cwd: string,
-): Promise<WorkingTreeFile[]> {
+export async function getWorkingTreeChanges(cwd: string): Promise<WorkingTreeFile[]> {
   const res = await run(cwd, ["status", "--porcelain=v1", "-z"]);
   requireOk(cwd, ["status", "--porcelain=v1", "-z"], res);
   const stdout = res.stdout;

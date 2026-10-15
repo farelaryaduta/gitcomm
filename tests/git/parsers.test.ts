@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { parseNameStatus, parseNumstat } from "../../src/git/staged";
 import { parsePorcelain } from "../../src/git/commit";
 import { parseLogOutput } from "../../src/git/log";
+import { parseNameStatus, parseNumstat } from "../../src/git/staged";
 
 function b(s: string): Buffer {
   return Buffer.from(s, "utf8");
@@ -19,9 +19,7 @@ describe("parseNameStatus", () => {
 
   it("parses renames with oldPath and score suffix", () => {
     const out = parseNameStatus(b("R100\0old/name space.ts\0new dir/name2.ts\0"));
-    expect(out).toEqual([
-      { status: "R", oldPath: "old/name space.ts", path: "new dir/name2.ts" },
-    ]);
+    expect(out).toEqual([{ status: "R", oldPath: "old/name space.ts", path: "new dir/name2.ts" }]);
   });
 
   it("handles Unicode paths", () => {
@@ -49,16 +47,12 @@ describe("parseNumstat", () => {
 
   it("marks binary files with null counts", () => {
     const out = parseNumstat(b("-\t-\timg.png\0"));
-    expect(out).toEqual([
-      { added: null, deleted: null, path: "img.png" },
-    ]);
+    expect(out).toEqual([{ added: null, deleted: null, path: "img.png" }]);
   });
 
   it("parses rename records with empty third column", () => {
     const out = parseNumstat(b("0\t0\t\0old file.ts\0new file.ts\0"));
-    expect(out).toEqual([
-      { added: 0, deleted: 0, oldPath: "old file.ts", path: "new file.ts" },
-    ]);
+    expect(out).toEqual([{ added: 0, deleted: 0, oldPath: "old file.ts", path: "new file.ts" }]);
   });
 });
 

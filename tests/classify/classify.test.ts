@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { classifyFiles, detectPresets } from "../../src/classify";
-import { TempRepo } from "../helpers/temp-repo";
+import type { StagedFile } from "../../src/types";
 import {
   depsOnly,
   docsOnly,
@@ -10,18 +10,19 @@ import {
   nextjsFeature,
   testsOnly,
 } from "../fixtures/classify";
-import type { StagedFile } from "../../src/types";
+import { TempRepo } from "../helpers/temp-repo";
 
 describe("classifyFiles", () => {
   it.each([
     ["laravel feature", laravelFeature, ["laravel"]],
     ["nextjs feature", nextjsFeature, ["nextjs"]],
   ] as [string, StagedFile[], ("laravel" | "nextjs")[]][])(
-
-    "classifies %s", async (_name, files, presets) => {
-    const summary = await classifyFiles(files, "/repo", { presets });
-    expect(summary.files.every((f) => f.category !== "other")).toBe(true);
-  });
+    "classifies %s",
+    async (_name, files, presets) => {
+      const summary = await classifyFiles(files, "/repo", { presets });
+      expect(summary.files.every((f) => f.category !== "other")).toBe(true);
+    },
+  );
 
   it("classifies a Laravel feature and infers feat(task)", async () => {
     const summary = await classifyFiles(laravelFeature, "/repo", { presets: ["laravel"] });

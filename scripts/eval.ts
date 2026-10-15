@@ -13,7 +13,11 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { classifyFiles } from "../src/classify";
+import { loadConfig } from "../src/config";
+import { getRecentCommits, getRepoRoot, getStagedDiffByFile, getStagedFiles } from "../src/git";
 import { analyzeStyle, gatherContext } from "../src/history";
+import { buildPrompt, parseSuggestions } from "../src/prompt";
+import { DEFAULT_API_URL, RemoteProvider } from "../src/providers";
 import {
   DEFAULT_PER_FILE_CAP,
   isIgnoredForAI,
@@ -21,26 +25,12 @@ import {
   redact,
   selectDiffs,
 } from "../src/safety";
-import {
-  getRepoRoot,
-  getStagedFiles,
-  getStagedDiffByFile,
-  getRecentCommits,
-} from "../src/git";
-import { buildPrompt, parseSuggestions } from "../src/prompt";
-import {
-  RemoteProvider,
-  DEFAULT_API_URL,
-  DEFAULT_MAX_RETRIES,
-  DEFAULT_TIMEOUT_MS,
-} from "../src/providers";
-import { loadConfig } from "../src/config";
 
 function version(): string {
   const here = dirname(fileURLToPath(import.meta.url));
-  const pkg = JSON.parse(
-    readFileSync(join(here, "..", "package.json"), "utf8"),
-  ) as { version: string };
+  const pkg = JSON.parse(readFileSync(join(here, "..", "package.json"), "utf8")) as {
+    version: string;
+  };
   return pkg.version;
 }
 

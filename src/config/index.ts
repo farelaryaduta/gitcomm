@@ -1,14 +1,14 @@
+export type { LoadResult } from "./load";
+export {
+  CONFIG_FILENAMES,
+  ConfigError,
+  findConfigFile,
+  loadConfig,
+} from "./load";
+export type { ConfigFile, ResolvedConfig } from "./schema";
 export {
   ConfigFileSchema,
   DEFAULTS,
-  LANGUAGE_VALUES,
   formatSchemaErrors,
+  LANGUAGE_VALUES,
 } from "./schema";
-export type { ConfigFile, ResolvedConfig } from "./schema";
-export {
-  CONFIG_FILENAMES,
-  findConfigFile,
-  loadConfig,
-  ConfigError,
-} from "./load";
-export type { LoadResult } from "./load";

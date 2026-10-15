@@ -1,6 +1,6 @@
 import type { FileStatus, StagedFile } from "../types";
-import { requireOk, run, runBuffer } from "./run";
 import type { CommandResult } from "./run";
+import { requireOk, run, runBuffer } from "./run";
 
 export interface RawNameStatusEntry {
   status: FileStatus;
@@ -122,12 +122,7 @@ function toStagedFile(ns: RawNameStatusEntry): StagedFile {
  * and zips the two by index (identical file order).
  */
 export async function getStagedFiles(cwd: string): Promise<StagedFile[]> {
-  const nsRes = await runBuffer(cwd, [
-    "diff",
-    "--staged",
-    "--name-status",
-    "-z",
-  ]);
+  const nsRes = await runBuffer(cwd, ["diff", "--staged", "--name-status", "-z"]);
   requireOk(cwd, ["diff", "--staged", "--name-status", "-z"], nsRes);
 
   const numRes = await runBuffer(cwd, ["diff", "--staged", "--numstat", "-z"]);
@@ -165,10 +160,7 @@ export async function getRepoRoot(cwd: string): Promise<string> {
  * Unified diff of the staged changes, optionally limited to `paths`.
  * Throw on failure.
  */
-export async function getStagedDiff(
-  cwd: string,
-  paths?: string[],
-): Promise<string> {
+export async function getStagedDiff(cwd: string, paths?: string[]): Promise<string> {
   const args = ["diff", "--staged", "--no-ext-diff", "--no-color"];
   if (paths && paths.length > 0) {
     args.push("--", ...paths);
@@ -189,14 +181,7 @@ export async function getStagedDiffByFile(
   const out = new Map<string, string>();
   await Promise.all(
     paths.map(async (path) => {
-      const res = await run(cwd, [
-        "diff",
-        "--staged",
-        "--no-ext-diff",
-        "--no-color",
-        "--",
-        path,
-      ]);
+      const res = await run(cwd, ["diff", "--staged", "--no-ext-diff", "--no-color", "--", path]);
       if (res.ok) out.set(path, res.stdout);
     }),
   );

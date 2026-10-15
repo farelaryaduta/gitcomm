@@ -1,4 +1,11 @@
-import type { ChangeSummary, ClassifiedFile, CommitType, FileCategory, Suggestion, StyleProfile } from "../types";
+import type {
+  ChangeSummary,
+  ClassifiedFile,
+  CommitType,
+  FileCategory,
+  StyleProfile,
+  Suggestion,
+} from "../types";
 
 /** Suffixes stripped from type-ish file names, longest first. */
 const CLASS_SUFFIXES = [
@@ -54,7 +61,10 @@ function andJoin(items: string[]): string {
 
 function stemOf(path: string): string {
   const base = path.split("/").pop() ?? "";
-  return base.replace(/\.[^/.]+$/, "").replace(/\./g, " ").trim();
+  return base
+    .replace(/\.[^/.]+$/, "")
+    .replace(/\./g, " ")
+    .trim();
 }
 
 function stripSuffixes(name: string): string {
@@ -69,7 +79,10 @@ function stripSuffixes(name: string): string {
 /** A noun worth putting in a subject (length >= 2, alphabetic). */
 function niceNoun(raw: string | undefined): string | undefined {
   if (raw === undefined) return undefined;
-  const clean = raw.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  const clean = raw
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
   if (clean.length < 2 || !/[a-z]/i.test(clean)) return undefined;
   return clean;
 }
@@ -115,10 +128,7 @@ function objectPhrase(summary: ChangeSummary): string | undefined {
     .filter((l): l is string => l !== undefined);
 
   if (scope !== undefined && labels.length > 0) {
-    return [
-      `${scope} ${labels[0]!}`,
-      ...labels.slice(1).map((l) => `${scope} ${l}`),
-    ]
+    return [`${scope} ${labels[0]!}`, ...labels.slice(1).map((l) => `${scope} ${l}`)]
       .slice(0, 2)
       .reduce((acc, part, i) => (i === 0 ? part : `${acc} and ${part}`), "");
   }
@@ -139,9 +149,9 @@ function objectPhrase(summary: ChangeSummary): string | undefined {
   return undefined;
 }
 
-function inferType(summary: ChangeSummary):
-  | { type: CommitType; verb: string; remove?: boolean }
-  | undefined {
+function inferType(
+  summary: ChangeSummary,
+): { type: CommitType; verb: string; remove?: boolean } | undefined {
   if (summary.typeLocked && summary.typeHint !== undefined) {
     return { type: summary.typeHint, verb: "update" };
   }
@@ -164,19 +174,13 @@ function inferType(summary: ChangeSummary):
  * Deterministic rule-based suggestions built from classification output.
  * Used when --offline is passed or the provider is unavailable/rate limited.
  */
-export function fallbackSuggestions(
-  summary: ChangeSummary,
-  style: StyleProfile,
-): Suggestion[] {
+export function fallbackSuggestions(summary: ChangeSummary, style: StyleProfile): Suggestion[] {
   const suggestions: Suggestion[] = [];
   const prefix = (type: CommitType, scope?: string): string =>
-    style.conventional
-      ? `${type}${scope !== undefined ? `(${scope})` : ""}: `
-      : "";
+    style.conventional ? `${type}${scope !== undefined ? `(${scope})` : ""}: ` : "";
 
   const only = (categories: FileCategory[]): boolean =>
-    summary.files.length > 0 &&
-    summary.files.every((f) => categories.includes(f.category));
+    summary.files.length > 0 && summary.files.every((f) => categories.includes(f.category));
 
   if (only(["docs"])) {
     const noun = niceNoun(nounFromFiles(summary.files)) ?? "documentation";
@@ -219,9 +223,7 @@ export function fallbackSuggestions(
     const type: CommitType = intent?.type ?? "chore";
     const object = phrases[0]?.split(" ").slice(1).join(" ") ?? "";
     const prefixScope =
-      scope !== undefined && scope !== object && object !== ""
-        ? scope
-        : undefined;
+      scope !== undefined && scope !== object && object !== "" ? scope : undefined;
     for (const phrase of phrases) {
       suggestions.push({ subject: `${prefix(type, prefixScope)}${phrase}` });
     }
@@ -230,10 +232,7 @@ export function fallbackSuggestions(
   return suggestions
     .filter((s, i, arr) => arr.findIndex((x) => x.subject === s.subject) === i)
     .map((s) => ({
-      subject:
-        style.conventional || style.lowercaseStart
-          ? s.subject
-          : capitalize(s.subject),
+      subject: style.conventional || style.lowercaseStart ? s.subject : capitalize(s.subject),
     }));
 }
 

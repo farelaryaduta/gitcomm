@@ -1,8 +1,7 @@
-import { afterEach, describe, expect, it } from "vitest";
 import { mkdirSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { TempRepo } from "../helpers/temp-repo";
+import { afterEach, describe, expect, it } from "vitest";
 import {
   commit,
   getCurrentBranch,
@@ -13,10 +12,11 @@ import {
   getStagedFiles,
   getWorkingTreeChanges,
   isGitRepo,
+  stageAllChanges,
   stagePaths,
   stageTracked,
-  stageAllChanges,
 } from "../../src/git";
+import { TempRepo } from "../helpers/temp-repo";
 
 const repos: TempRepo[] = [];
 
@@ -59,8 +59,12 @@ describe("repo detection", () => {
 describe("getStagedFiles", () => {
   it("handles added, modified, deleted, rename, binary, and Unicode paths", async () => {
     const repo = await makeRepo();
-    const PNG_1 = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d]);
-    const PNG_2 = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0e]);
+    const PNG_1 = Buffer.from([
+      0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d,
+    ]);
+    const PNG_2 = Buffer.from([
+      0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0e,
+    ]);
     repo.writeFile("keep.txt", "version one\n");
     repo.writeFile("bin/logo.png", PNG_1);
     await repo.addAll();
@@ -90,9 +94,7 @@ describe("getStagedFiles", () => {
     const renamed = byPath.get("renamed.txt");
     expect(renamed).toBeDefined();
     expect(renamed!.status).toBe("R");
-    expect(files.find((f) => f.path === "renamed.txt")!.oldPath).toBe(
-      "keep.txt",
-    );
+    expect(files.find((f) => f.path === "renamed.txt")!.oldPath).toBe("keep.txt");
   });
 
   it("returns nothing when nothing is staged", async () => {

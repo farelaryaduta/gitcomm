@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseSuggestions, isSlop, NO_SUGGESTIONS } from "../../src/prompt/parse";
+import { isSlop, NO_SUGGESTIONS, parseSuggestions } from "../../src/prompt/parse";
 import type { StyleProfile } from "../../src/types";
 
 const CONV: StyleProfile = {
@@ -37,7 +37,7 @@ describe("parseSuggestions", () => {
   });
 
   it("parses a fenced JSON array", () => {
-    const raw = "```json\n" + JSON.stringify([{ subject: "feat: x" }]) + "\n```";
+    const raw = `\`\`\`json\n${JSON.stringify([{ subject: "feat: x" }])}\n\`\`\``;
     expect(parseSuggestions(raw)).toEqual([{ subject: "feat: x" }]);
   });
 
@@ -56,7 +56,14 @@ describe("parseSuggestions", () => {
   });
 
   it("dedupes and caps the result", () => {
-    const raw = ["1. feat: a", "2. feat: a", "3. feat: b", "4. feat: c", "5. feat: d", "6. feat: e"].join("\n");
+    const raw = [
+      "1. feat: a",
+      "2. feat: a",
+      "3. feat: b",
+      "4. feat: c",
+      "5. feat: d",
+      "6. feat: e",
+    ].join("\n");
     const out = parseSuggestions(raw, undefined, undefined, 3);
     expect(out).toHaveLength(3);
     expect(new Set(out.map((s) => s.subject)).size).toBe(3);
@@ -91,12 +98,7 @@ describe("parseSuggestions", () => {
   });
 
   it("drops invalid JSON array items but keeps valid ones", () => {
-    const raw = JSON.stringify([
-      { subject: "feat: ok" },
-      { body: "no subject" },
-      42,
-      null,
-    ]);
+    const raw = JSON.stringify([{ subject: "feat: ok" }, { body: "no subject" }, 42, null]);
     expect(parseSuggestions(raw)).toEqual([{ subject: "feat: ok" }]);
   });
 });

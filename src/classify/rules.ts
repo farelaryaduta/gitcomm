@@ -35,7 +35,8 @@ export const genericRules: Rule[] = [
     typeHint: "chore",
   },
   {
-    match: /(?:^|\/)(package-lock\.json|yarn\.lock|pnpm-lock\.yaml|composer\.lock|poetry\.lock|uv\.lock|Pipfile\.lock|Cargo\.lock)$/,
+    match:
+      /(?:^|\/)(package-lock\.json|yarn\.lock|pnpm-lock\.yaml|composer\.lock|poetry\.lock|uv\.lock|Pipfile\.lock|Cargo\.lock)$/,
     category: "deps",
     typeHint: "chore",
   },
@@ -50,7 +51,8 @@ export const genericRules: Rule[] = [
   },
   { match: /\.(css|scss|sass|less)$/i, category: "style" },
   {
-    match: /\.(png|jpe?g|gif|svg|webp|avif|ico|bmp|mp4|webm|mkv|mov|mp3|wav|ogg|flac|woff2?|ttf|otf|eot|pdf)$/i,
+    match:
+      /\.(png|jpe?g|gif|svg|webp|avif|ico|bmp|mp4|webm|mkv|mov|mp3|wav|ogg|flac|woff2?|ttf|otf|eot|pdf)$/i,
     category: "asset",
   },
   { match: /\.map$/, category: "asset" },
@@ -88,10 +90,7 @@ export function matchGeneric(path: string): MatchResult | null {
 }
 
 /** Match a path against a preset's rules, if any. */
-export function matchPreset(
-  path: string,
-  rules: Rule[],
-): MatchResult | null {
+export function matchPreset(path: string, rules: Rule[]): MatchResult | null {
   return applyRules(path, rules);
 }
 

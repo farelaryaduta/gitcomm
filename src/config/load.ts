@@ -1,10 +1,10 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
+  type ConfigFile,
   ConfigFileSchema,
   DEFAULTS,
   formatSchemaErrors,
-  type ConfigFile,
   type ResolvedConfig,
 } from "./schema";
 
@@ -28,10 +28,7 @@ function parseBool(value: string | undefined): boolean | undefined {
 
 type IntOrInvalid = number | "invalid" | undefined;
 
-function readInt(
-  env: Record<string, string | undefined>,
-  key: string,
-): IntOrInvalid {
+function readInt(env: Record<string, string | undefined>, key: string): IntOrInvalid {
   const value = env[key];
   if (value === undefined) return undefined;
   const n = Number(value);
@@ -121,7 +118,11 @@ function envOverrides(
   } else if (maxSubjectLength !== undefined) out.maxSubjectLength = maxSubjectLength;
 
   const ignore = env.COMMIT_IN_IGNORE;
-  if (ignore !== undefined) out.ignore = ignore.split(",").map((s) => s.trim()).filter(Boolean);
+  if (ignore !== undefined)
+    out.ignore = ignore
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
 
   const forceConventional = parseBool(env.COMMIT_IN_FORCE_CONVENTIONAL);
   if (forceConventional !== undefined) out.forceConventional = forceConventional;

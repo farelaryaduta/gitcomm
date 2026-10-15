@@ -1,14 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { redact } from "../../src/safety/redact";
-import { isIgnoredForAI, globMatches, globToRegExp } from "../../src/safety/ignore";
-import { isSensitive, sensitiveReason } from "../../src/safety/sensitive";
 import { selectDiffs, truncateDiff } from "../../src/safety/budget";
+import { globMatches, globToRegExp, isIgnoredForAI } from "../../src/safety/ignore";
+import { redact } from "../../src/safety/redact";
+import { isSensitive, sensitiveReason } from "../../src/safety/sensitive";
 import type { ClassifiedFile } from "../../src/types";
 
 describe("redact", () => {
   it("redacts private key blocks", () => {
-    const block =
-      "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG\n-----END PRIVATE KEY-----\n";
+    const block = "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG\n-----END PRIVATE KEY-----\n";
     expect(redact(block)).toBe("[REDACTED]\n");
   });
 
@@ -23,9 +22,7 @@ describe("redact", () => {
 
   it("redacts secret assignments but keeps the key name", () => {
     expect(redact("password=hunter2hunter2")).toBe("password=[REDACTED]");
-    expect(redact("API_KEY = \"superSecretValue12\"")).toBe(
-      "API_KEY = [REDACTED]",
-    );
+    expect(redact('API_KEY = "superSecretValue12"')).toBe("API_KEY = [REDACTED]");
     expect(redact("token: 'averylongtokenvalue'")).toBe("token: [REDACTED]");
   });
 
@@ -134,10 +131,7 @@ describe("diff budget", () => {
 
   it("prioritises source files and drops over-budget files", () => {
     const textFor = (n: number) => "x".repeat(n);
-    const files = [
-      cf("docs/readme.md", "docs"),
-      cf("src/order.ts", "source"),
-    ];
+    const files = [cf("docs/readme.md", "docs"), cf("src/order.ts", "source")];
     const docsDiff = "same line\n".repeat(500);
     const diffs = new Map([
       ["docs/readme.md", docsDiff],
@@ -148,12 +142,15 @@ describe("diff budget", () => {
   });
 
   it("skips ignored and sensitive files", () => {
-    const files = [
-      cf("src/order.ts", "source", true),
-      cf("secrets.txt", "source", false),
-    ];
+    const files = [cf("src/order.ts", "source", true), cf("secrets.txt", "source", false)];
     files[1]!.sensitive = true;
-    const picked = selectDiffs(files, new Map([["src/order.ts", "x"], ["secrets.txt", "y"]]));
+    const picked = selectDiffs(
+      files,
+      new Map([
+        ["src/order.ts", "x"],
+        ["secrets.txt", "y"],
+      ]),
+    );
     expect(picked).toEqual([]);
   });
 });

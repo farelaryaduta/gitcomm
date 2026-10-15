@@ -1,25 +1,11 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
-import type {
-  ChangeSummary,
-  ClassifiedFile,
-  CommitType,
-  StagedFile,
-} from "../types";
-import {
-  fallbackCategory,
-  matchGeneric,
-  matchPreset,
-  type MatchResult,
-} from "./rules";
-import type { Rule } from "./rules";
+import type { ChangeSummary, ClassifiedFile, CommitType, StagedFile } from "../types";
 import { laravelRules } from "./presets/laravel";
 import { nextjsRules } from "./presets/nextjs";
-import {
-  inferScopeFromPath,
-  pickScope,
-  reconcileWithKnownScopes,
-} from "./scope";
+import type { Rule } from "./rules";
+import { fallbackCategory, type MatchResult, matchGeneric, matchPreset } from "./rules";
+import { inferScopeFromPath, pickScope, reconcileWithKnownScopes } from "./scope";
 
 export type ActivePreset = "laravel" | "nextjs";
 
@@ -63,9 +49,7 @@ function classifyPath(path: string, rules: Rule[]): MatchResult | null {
   return matchGeneric(path);
 }
 
-function totalStats(
-  files: ClassifiedFile[],
-): { files: number; added: number; deleted: number } {
+function totalStats(files: ClassifiedFile[]): { files: number; added: number; deleted: number } {
   let added = 0;
   let deleted = 0;
   for (const f of files) {
@@ -85,8 +69,7 @@ function inferTypeAndScope(
     return { typeLocked: false };
   }
 
-  const allAre = (category: string): boolean =>
-    relevant.every((f) => f.category === category);
+  const allAre = (category: string): boolean => relevant.every((f) => f.category === category);
 
   if (allAre("docs")) {
     return { typeHint: "docs", typeLocked: true };
@@ -105,10 +88,7 @@ function inferTypeAndScope(
   }
 
   const candidates = relevant.map((f) => f.scopeCandidate);
-  const scopeHint = reconcileWithKnownScopes(
-    pickScope(candidates),
-    knownScopes,
-  );
+  const scopeHint = reconcileWithKnownScopes(pickScope(candidates), knownScopes);
 
   const sourceCategories = new Set([
     "controller",
@@ -121,8 +101,7 @@ function inferTypeAndScope(
     "service",
   ]);
   const hasSource = relevant.some((f) => sourceCategories.has(f.category));
-  const addedRatio =
-    relevant.filter((f) => f.status === "A").length / relevant.length;
+  const addedRatio = relevant.filter((f) => f.status === "A").length / relevant.length;
   if (hasSource && addedRatio >= 0.5) {
     return { typeHint: "feat", typeLocked: false, scopeHint };
   }
@@ -145,8 +124,7 @@ export async function classifyFiles(
   }
 
   const knownScopes = options.knownScopes ?? [];
-  const ignoredForAI =
-    options.isIgnoredForAI ?? defaultIgnoredForAI;
+  const ignoredForAI = options.isIgnoredForAI ?? defaultIgnoredForAI;
 
   const classified: ClassifiedFile[] = files.map((f) => {
     const kept = { ...f };

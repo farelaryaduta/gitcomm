@@ -1,3 +1,3 @@
-export { buildPrompt } from "./build";
 export type { BuildPromptInput } from "./build";
-export { parseSuggestions, isSlop, NO_SUGGESTIONS } from "./parse";
+export { buildPrompt } from "./build";
+export { isSlop, NO_SUGGESTIONS, parseSuggestions } from "./parse";

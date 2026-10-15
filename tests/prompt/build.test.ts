@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { buildPrompt } from "../../src/prompt/build";
-import type { ChangeSummary, StyleProfile } from "../../src/types";
 import type { RepoContext } from "../../src/history";
+import { buildPrompt } from "../../src/prompt/build";
 import type { DiffSlice } from "../../src/safety";
+import type { ChangeSummary, StyleProfile } from "../../src/types";
 
 const STYLE: StyleProfile = {
   sampleSize: 10,
@@ -58,7 +58,13 @@ const CONTEXT: RepoContext = {
 };
 
 describe("buildPrompt", () => {
-  const req = buildPrompt({ change: CHANGE, style: STYLE, diffs: DIFFS, context: CONTEXT, count: 3 });
+  const req = buildPrompt({
+    change: CHANGE,
+    style: STYLE,
+    diffs: DIFFS,
+    context: CONTEXT,
+    count: 3,
+  });
 
   it("keeps the system message directive-based", () => {
     expect(req.system).toContain("suggest 3 commit message options");
@@ -67,7 +73,9 @@ describe("buildPrompt", () => {
 
   it("includes staged file inventory with change counts", () => {
     expect(req.user).toContain("- src/order.ts (modified, +2 -1)");
-    expect(req.user).toContain("- database/migrations/2026_01_01_create_orders_table.php (added, +20 -0)");
+    expect(req.user).toContain(
+      "- database/migrations/2026_01_01_create_orders_table.php (added, +20 -0)",
+    );
   });
 
   it("includes the diff text under its own section", () => {

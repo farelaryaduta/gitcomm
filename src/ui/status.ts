@@ -40,15 +40,10 @@ export interface StatusView {
  * Build the status dashboard lines shown right after the welcome header.
  * Pure and deterministic (identify colors yield plain text).
  */
-export function statusPanel(
-  view: StatusView,
-  c: Colors = identityColors,
-): string[] {
+export function statusPanel(view: StatusView, c: Colors = identityColors): string[] {
   const lines: string[] = [];
   lines.push(c.dim(`repository: ${view.root}`));
-  lines.push(
-    `branch: ${view.branch === null ? c.yellow("(detached HEAD)") : c.bold(view.branch)}`,
-  );
+  lines.push(`branch: ${view.branch === null ? c.yellow("(detached HEAD)") : c.bold(view.branch)}`);
 
   const files = view.files;
   if (files.length === 0) {
@@ -91,10 +86,7 @@ export function statusPanel(
               : f.status === "R" || f.status === "C"
                 ? c.cyan(f.status)
                 : c.yellow(f.status);
-        const path =
-          f.sensitive
-            ? c.red(displayPath(f))
-            : displayPath(f);
+        const path = f.sensitive ? c.red(displayPath(f)) : displayPath(f);
         const flag = f.sensitive
           ? c.bold(c.red("sensitive"))
           : f.ignoredForAI
@@ -115,9 +107,7 @@ export function statusPanel(
         rAdded += f.added ?? 0;
         rDeleted += f.deleted ?? 0;
       }
-      lines.push(
-        c.dim(`… and ${rest.length} more file(s) (+${rAdded} -${rDeleted})`),
-      );
+      lines.push(c.dim(`… and ${rest.length} more file(s) (+${rAdded} -${rDeleted})`));
     }
   }
 
@@ -130,9 +120,7 @@ export function statusPanel(
 
   const hints: string[] = [];
   if (view.typeHint) {
-    hints.push(
-      `type=${view.typeHint}${view.typeLocked ? c.dim(" (locked)") : ""}`,
-    );
+    hints.push(`type=${view.typeHint}${view.typeLocked ? c.dim(" (locked)") : ""}`);
   }
   if (view.scopeHint) hints.push(`scope=${view.scopeHint}`);
   if (hints.length > 0) lines.push(`hints: ${hints.join(", ")}`);

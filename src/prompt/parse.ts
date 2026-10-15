@@ -1,4 +1,4 @@
-import type { Suggestion, StyleProfile } from "../types";
+import type { StyleProfile, Suggestion } from "../types";
 
 export const NO_SUGGESTIONS = "NO_SUGGESTIONS";
 
@@ -27,12 +27,48 @@ function dedupe(list: Suggestion[]): Suggestion[] {
 }
 
 const SLOP_TOKENS = new Set([
-  "stuff", "things", "files", "code", "deps", "dependencies", "dependency",
-  "docs", "doc", "everything", "anything", "something", "various", "misc",
-  "miscellaneous", "general", "bugs", "bug", "issues", "issue", "fixes", "fix",
-  "changes", "change", "updates", "update", "work", "progress", "cleanup",
-  "polish", "tweaks", "tweak", "improvements", "improvement", "housekeeping",
-  "maintenance", "refactor", "refactoring", "add", "remove", "make", "do",
+  "stuff",
+  "things",
+  "files",
+  "code",
+  "deps",
+  "dependencies",
+  "dependency",
+  "docs",
+  "doc",
+  "everything",
+  "anything",
+  "something",
+  "various",
+  "misc",
+  "miscellaneous",
+  "general",
+  "bugs",
+  "bug",
+  "issues",
+  "issue",
+  "fixes",
+  "fix",
+  "changes",
+  "change",
+  "updates",
+  "update",
+  "work",
+  "progress",
+  "cleanup",
+  "polish",
+  "tweaks",
+  "tweak",
+  "improvements",
+  "improvement",
+  "housekeeping",
+  "maintenance",
+  "refactor",
+  "refactoring",
+  "add",
+  "remove",
+  "make",
+  "do",
 ]);
 
 /**
@@ -46,14 +82,16 @@ export function isSlop(subject: string): boolean {
   const core = s.replace(/^[a-z][\w-]*(?:\([^)]*\))?!?\s*:\s*/, "").trim();
   if (core === "") return true;
 
-  if (/^(?:wip|work in progress|initial commit|first commit|draft|in progress|no idea|lol)$/.test(core)) {
+  if (
+    /^(?:wip|work in progress|initial commit|first commit|draft|in progress|no idea|lol)$/.test(
+      core,
+    )
+  ) {
     return true;
   }
 
   const tokens = core.split(/[^a-z0-9]+/).filter(Boolean);
-  const namesConcreteUnit = tokens.some(
-    (t) => t.length >= 5 && !SLOP_TOKENS.has(t),
-  );
+  const namesConcreteUnit = tokens.some((t) => t.length >= 5 && !SLOP_TOKENS.has(t));
   return !namesConcreteUnit;
 }
 
@@ -64,7 +102,8 @@ function enforceConventional(
   typeHint: string | undefined,
 ): Suggestion[] {
   const CONVENTIONAL_RE = /^[\w-]+(?:\([^)]+\))?!?: .+/;
-  const fallbackType = typeHint ?? Object.entries(style.typeCounts).sort((a, b) => b[1] - a[1])[0]?.[0];
+  const fallbackType =
+    typeHint ?? Object.entries(style.typeCounts).sort((a, b) => b[1] - a[1])[0]?.[0];
   if (!fallbackType) return list;
   return list.map((s) => {
     if (CONVENTIONAL_RE.test(s.subject)) return s;
@@ -96,7 +135,9 @@ export function parseSuggestions(
       const arr = JSON.parse(text) as unknown;
       if (Array.isArray(arr)) {
         const parsed = arr
-          .filter((x): x is { subject?: unknown; body?: unknown } => typeof x === "object" && x !== null)
+          .filter(
+            (x): x is { subject?: unknown; body?: unknown } => typeof x === "object" && x !== null,
+          )
           .map((x) => ({
             subject: cleanSubject(String(x.subject ?? "")),
             body: typeof x.body === "string" ? x.body.trim() : undefined,
@@ -136,7 +177,10 @@ export function parseSuggestions(
     return list;
   }
 
-  const single = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean)[0];
+  const single = text
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter(Boolean)[0];
   if (single) {
     let list = [{ subject: cleanSubject(single) }];
     if (style?.conventional) list = enforceConventional(list, style, typeHint);

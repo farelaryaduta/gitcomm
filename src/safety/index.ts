@@ -1,15 +1,15 @@
+export type { DiffBudgetOptions, DiffSlice } from "./budget";
 export {
-  DEFAULT_IGNORE_PATTERNS,
-  globToRegExp,
-  globMatches,
-  isIgnoredForAI,
-} from "./ignore";
-export { sensitiveReason, isSensitive } from "./sensitive";
-export { redact } from "./redact";
-export {
-  truncateDiff,
-  selectDiffs,
   DEFAULT_MAX_DIFF_CHARS,
   DEFAULT_PER_FILE_CAP,
+  selectDiffs,
+  truncateDiff,
 } from "./budget";
-export type { DiffSlice, DiffBudgetOptions } from "./budget";
+export {
+  DEFAULT_IGNORE_PATTERNS,
+  globMatches,
+  globToRegExp,
+  isIgnoredForAI,
+} from "./ignore";
+export { redact } from "./redact";
+export { isSensitive, sensitiveReason } from "./sensitive";

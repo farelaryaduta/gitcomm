@@ -50,10 +50,7 @@ function lastDirectory(parts: string[]): string | undefined {
  * Infer a scope candidate for a single staged file path.
  * Returns `undefined` when no meaningful candidate exists.
  */
-export function inferScopeFromPath(
-  path: string,
-  category: FileCategory,
-): string | undefined {
+export function inferScopeFromPath(path: string, category: FileCategory): string | undefined {
   const parts = path.split("/");
 
   const stem = (parts[parts.length - 1] ?? "").replace(/\.[^/.]+$/, "");
@@ -79,14 +76,7 @@ export function inferScopeFromPath(
     return dir !== undefined ? toScope(dir) : undefined;
   }
 
-  const NO_SCOPE: Set<FileCategory> = new Set([
-    "docs",
-    "deps",
-    "asset",
-    "style",
-    "ci",
-    "config",
-  ]);
+  const NO_SCOPE: Set<FileCategory> = new Set(["docs", "deps", "asset", "style", "ci", "config"]);
   if (NO_SCOPE.has(category)) {
     return undefined;
   }
@@ -110,9 +100,7 @@ export function inferScopeFromPath(
 }
 
 /** Pick the most frequent candidate, or `undefined` on a tie. */
-export function pickScope(
-  candidates: Array<string | undefined>,
-): string | undefined {
+export function pickScope(candidates: Array<string | undefined>): string | undefined {
   const counts = new Map<string, number>();
   let best: string | undefined;
   let bestCount = 0;
@@ -136,10 +124,7 @@ export function pickScope(
     const narrower = byLength.slice(1);
     // A tie where one candidate is a prefix of all others ("cart" vs
     // "cartItem") has a broader scope — prefer the shorter one.
-    if (
-      shortest !== undefined &&
-      narrower.every((v) => v.startsWith(shortest!))
-    ) {
+    if (shortest !== undefined && narrower.every((v) => v.startsWith(shortest!))) {
       return shortest;
     }
     return undefined;

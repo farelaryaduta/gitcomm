@@ -16,9 +16,7 @@ export interface CommandResultBuffer {
 
 const EXIT_CODE_PATTERN = /exit code? (\d+)/;
 
-function describeFailure(
-  e: unknown,
-): { stderr: string; exitCode: number | undefined } {
+function describeFailure(e: unknown): { stderr: string; exitCode: number | undefined } {
   const err = e as {
     stderr?: Buffer | string;
     shortMessage?: string;
@@ -56,10 +54,7 @@ export async function run(cwd: string, args: string[]): Promise<CommandResult> {
 }
 
 /** Run a git command and keep raw bytes (for `-z`/NUL-terminated output). */
-export async function runBuffer(
-  cwd: string,
-  args: string[],
-): Promise<CommandResultBuffer> {
+export async function runBuffer(cwd: string, args: string[]): Promise<CommandResultBuffer> {
   try {
     const r = await execa("git", args, {
       cwd,
@@ -89,12 +84,7 @@ export class GitCommandError extends Error {
   readonly exitCode: number | undefined;
   readonly stderr: string;
 
-  constructor(
-    message: string,
-    args: string[],
-    exitCode: number | undefined,
-    stderr: string,
-  ) {
+  constructor(message: string, args: string[], exitCode: number | undefined, stderr: string) {
     super(message);
     this.name = "GitCommandError";
     this.args = args;
@@ -105,7 +95,7 @@ export class GitCommandError extends Error {
 
 /** Throw a `GitCommandError` unless the command succeeded. */
 export function requireOk(
-  cwd: string,
+  _cwd: string,
   args: string[],
   res: CommandResult | CommandResultBuffer,
 ): void {
